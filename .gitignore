@@ -3,6 +3,7 @@
 *.tfstate
 *.tfstate.*
 *.tfvars
+*.tfplan
 
 bedrock-access-gateway
 bedrock-access-gateway/*
