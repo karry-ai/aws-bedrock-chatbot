@@ -8,13 +8,8 @@ locals {
 }
 
 # ECS Cluster
-resource "aws_iam_service_linked_role" "AWSServiceRoleForECS" {
-  aws_service_name = "ecs.amazonaws.com"
-}
-
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = local.ecs.cluster_name
-  depends_on = [aws_iam_service_linked_role.AWSServiceRoleForECS]
 }
 
 resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_provider" {

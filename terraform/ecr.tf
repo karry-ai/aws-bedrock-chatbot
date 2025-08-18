@@ -1,7 +1,7 @@
 locals {
-  bag_working_dir       = ".assets//bedrock-access-gateway/src"
-  openwebui_working_dir = ".assets/open-webui"
-  mcpo_working_dir      = ".assets/mcpo"
+  bag_working_dir       = "assets/bedrock-access-gateway/src"
+  openwebui_working_dir = "assets/open-webui"
+  mcpo_working_dir      = "assets/mcpo"
 }
 
 # ECR Repositories
