@@ -11,13 +11,17 @@ RUN node -v && npm -v && npx --version
 WORKDIR /app
 
 COPY config.json config.json
+COPY entrypoint.sh entrypoint.sh
 
 # Install MCPO and uvx
 RUN pip install mcpo uv
 
+# Install envsubst for environment variable substitution
+RUN apt-get update && apt-get install -y gettext-base && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Make entrypoint executable
+RUN chmod +x entrypoint.sh
+
 EXPOSE 80
 
-#CMD ["uvx", "mcpo", "--host", "0.0.0.0", "--port", "80", "--api-key", "$API_KEY", "--config", "/app/config.json"]
-
-# Uncomment the following line if you want to run mcpo directly without API key
-CMD ["uvx", "mcpo", "--host", "0.0.0.0", "--port", "80", "--config", "/app/config.json"]
+CMD ["./entrypoint.sh"]

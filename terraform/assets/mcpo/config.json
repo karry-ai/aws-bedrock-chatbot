@@ -15,6 +15,15 @@
         "linear": {
             "command": "uvx",
             "args": [ "mcp-linear"]
+        },
+        "opensearch": {
+            "transport": "http",
+            "url": "${OPENSEARCH_MCP_URL}",
+            "headers": {
+                "X-API-Key": "${OPENSEARCH_MCP_API_KEY}",
+                "Content-Type": "application/json",
+                "Accept": "application/json, text/event-stream"
+            }
         }
     }
 }
