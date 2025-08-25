@@ -6,7 +6,7 @@
         },
 
         "opensearch": {
-            "transport": "sse",
+            "type": "http",
             "url": "${OPENSEARCH_MCP_URL}",
             "headers": {
                 "X-API-Key": "${OPENSEARCH_MCP_API_KEY}",

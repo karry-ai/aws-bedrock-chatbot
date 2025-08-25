@@ -447,7 +447,8 @@ resource "aws_ecs_task_definition" "task_definition_mcpo" {
         {
           name  = "OPENSEARCH_MCP_URL"
           value = var.opensearch_mcp_url
-        }
+        },
+
       ]
       logConfiguration = {
         logDriver = "awslogs",
@@ -460,6 +461,8 @@ resource "aws_ecs_task_definition" "task_definition_mcpo" {
       }
     }
   ])
+  
+
 }
 
 resource "aws_ecs_service" "ecs_service_mcpo" {
