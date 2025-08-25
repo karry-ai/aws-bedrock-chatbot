@@ -71,8 +71,6 @@
           "secretsmanager:Name": [
             "bag-api-key-*",
             "mcpo-api-key-*",
-            "gitlab-token-*",
-            "linear-token-*",
             "opensearch-mcp-api-key-*"
           ]
         }
@@ -93,8 +91,6 @@
       "Resource": [
         "arn:aws:secretsmanager:us-east-2:777994621746:secret:bag-api-key-*",
         "arn:aws:secretsmanager:us-east-2:777994621746:secret:mcpo-api-key-*",
-        "arn:aws:secretsmanager:us-east-2:777994621746:secret:gitlab-token-*",
-        "arn:aws:secretsmanager:us-east-2:777994621746:secret:linear-token-*",
         "arn:aws:secretsmanager:us-east-2:777994621746:secret:opensearch-mcp-api-key-*"
       ]
     }

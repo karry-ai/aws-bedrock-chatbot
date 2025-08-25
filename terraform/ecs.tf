@@ -112,8 +112,7 @@ data "aws_iam_policy_document" "task_execution_policy" {
     resources = [
       aws_secretsmanager_secret.bag_api_key_secret.arn,
       aws_secretsmanager_secret.mcpo_api_key_secret.arn,
-      aws_secretsmanager_secret.gitlab_token_secret.arn,
-      aws_secretsmanager_secret.linear_token_secret.arn,
+
       aws_secretsmanager_secret.opensearch_mcp_api_key_secret.arn
     ]
   }
@@ -438,14 +437,7 @@ resource "aws_ecs_task_definition" "task_definition_mcpo" {
           name      = "API_KEY"
           valueFrom = aws_secretsmanager_secret.mcpo_api_key_secret.arn
         },
-        {
-          name      = "GITLAB_PERSONAL_ACCESS_TOKEN"
-          valueFrom = aws_secretsmanager_secret.gitlab_token_secret.arn
-        },
-        {
-          name      = "LINEAR_API_KEY"
-          valueFrom = aws_secretsmanager_secret.linear_token_secret.arn
-        },
+        
         {
           name      = "OPENSEARCH_MCP_API_KEY"
           valueFrom = aws_secretsmanager_secret.opensearch_mcp_api_key_secret.arn
