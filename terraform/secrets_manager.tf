@@ -36,3 +36,13 @@ resource "aws_secretsmanager_secret" "gitlab_token_secret" {
 resource "aws_secretsmanager_secret" "linear_token_secret" {
   name_prefix = "linear-token-"
 }
+
+# OpenSearch MCP API Key secret (value provided via Terraform variable)
+resource "aws_secretsmanager_secret" "opensearch_mcp_api_key_secret" {
+  name_prefix = "opensearch-mcp-api-key-"
+}
+
+resource "aws_secretsmanager_secret_version" "opensearch_mcp_api_key_secret_version" {
+  secret_id     = aws_secretsmanager_secret.opensearch_mcp_api_key_secret.id
+  secret_string = var.opensearch_mcp_api_key
+}

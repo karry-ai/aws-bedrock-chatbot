@@ -113,7 +113,8 @@ data "aws_iam_policy_document" "task_execution_policy" {
       aws_secretsmanager_secret.bag_api_key_secret.arn,
       aws_secretsmanager_secret.mcpo_api_key_secret.arn,
       aws_secretsmanager_secret.gitlab_token_secret.arn,
-      aws_secretsmanager_secret.linear_token_secret.arn
+      aws_secretsmanager_secret.linear_token_secret.arn,
+      aws_secretsmanager_secret.opensearch_mcp_api_key_secret.arn
     ]
   }
 
@@ -444,6 +445,16 @@ resource "aws_ecs_task_definition" "task_definition_mcpo" {
         {
           name      = "LINEAR_API_KEY"
           valueFrom = aws_secretsmanager_secret.linear_token_secret.arn
+        },
+        {
+          name      = "OPENSEARCH_MCP_API_KEY"
+          valueFrom = aws_secretsmanager_secret.opensearch_mcp_api_key_secret.arn
+        }
+      ]
+      environment = [
+        {
+          name  = "OPENSEARCH_MCP_URL"
+          value = var.opensearch_mcp_url
         }
       ]
       logConfiguration = {

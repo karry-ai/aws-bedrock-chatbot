@@ -1,0 +1,104 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "IAMForTaskAndServiceRoles",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:GetRole",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:PutRolePolicy",
+        "iam:DeleteRolePolicy"
+      ],
+      "Resource": "arn:aws:iam::777994621746:role/webui-bedrock-cluster-*"
+    },
+    {
+      "Sid": "IAMCreateServiceLinkedRoleForECS",
+      "Effect": "Allow",
+      "Action": "iam:CreateServiceLinkedRole",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": { "iam:AWSServiceName": "ecs.amazonaws.com" }
+      }
+    },
+    {
+      "Sid": "IAMPassRoleToECSTasks",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "arn:aws:iam::777994621746:role/webui-bedrock-cluster-*",
+      "Condition": {
+        "StringEquals": { "iam:PassedToService": "ecs-tasks.amazonaws.com" }
+      }
+    },
+    {
+      "Sid": "ECRRepoAdminAndPush",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:CreateRepository",
+        "ecr:DeleteRepository",
+        "ecr:SetRepositoryPolicy",
+        "ecr:GetRepositoryPolicy",
+        "ecr:DescribeRepositories",
+        "ecr:ListImages",
+        "ecr:DescribeImages",
+        "ecr:BatchGetImage",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:CompleteLayerUpload",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:PutImage",
+        "ecr:TagResource",
+        "ecr:UntagResource"
+      ],
+      "Resource": "arn:aws:ecr:us-east-2:777994621746:repository/*"
+    },
+    {
+      "Sid": "ECRAuthTokenForDockerLogin",
+      "Effect": "Allow",
+      "Action": "ecr:GetAuthorizationToken",
+      "Resource": "*"
+    },
+    {
+      "Sid": "SecretsCreateOnlyApprovedNames",
+      "Effect": "Allow",
+      "Action": "secretsmanager:CreateSecret",
+      "Resource": "*",
+      "Condition": {
+        "StringLike": {
+          "secretsmanager:Name": [
+            "bag-api-key-*",
+            "mcpo-api-key-*",
+            "gitlab-token-*",
+            "linear-token-*",
+            "opensearch-mcp-api-key-*"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "SecretsManageOnlyStackSecrets",
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetResourcePolicy",
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:PutSecretValue",
+        "secretsmanager:DeleteSecret",
+        "secretsmanager:TagResource",
+        "secretsmanager:UntagResource"
+      ],
+      "Resource": [
+        "arn:aws:secretsmanager:us-east-2:777994621746:secret:bag-api-key-*",
+        "arn:aws:secretsmanager:us-east-2:777994621746:secret:mcpo-api-key-*",
+        "arn:aws:secretsmanager:us-east-2:777994621746:secret:gitlab-token-*",
+        "arn:aws:secretsmanager:us-east-2:777994621746:secret:linear-token-*",
+        "arn:aws:secretsmanager:us-east-2:777994621746:secret:opensearch-mcp-api-key-*"
+      ]
+    }
+  ]
+}
+
+
