@@ -181,7 +181,11 @@ module "vpc_interface_endpoints" {
   vpc = {
     id         = aws_vpc.default.id
     cidr       = local.vpc_cidr
-    subnet_ids = aws_subnet.module_private_subnets[*].id
+    subnet_ids = slice(
+      aws_subnet.module_private_subnets[*].id,
+      0,
+      min(length(aws_subnet.module_private_subnets[*].id), var.vpc_endpoint_num_subnets)
+    )
   }
 
   vpc_interface_endpoints = [
