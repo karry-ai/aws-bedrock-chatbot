@@ -8,4 +8,5 @@
 bedrock-access-gateway
 bedrock-access-gateway/*
 open-webui
-open-webui/*
+open-webui/*test-config.json
+mcpo-test/
