@@ -6,7 +6,7 @@ variable "account_id" {
 variable "region" {
   description = "AWS Region"
   type        = string
-  default     = "eu-west-1"
+  default     = "us-east-2"
 }
 
 variable "profile" {
@@ -23,4 +23,10 @@ variable "opensearch_mcp_api_key" {
   description = "API key for the OpenSearch MCP server"
   type        = string
   sensitive   = true
+}
+
+variable "vpc_endpoint_num_subnets" {
+  description = "Number of subnets to attach to each Interface VPC Endpoint (use 1 to reduce cost)"
+  type        = number
+  default     = 1
 }

@@ -1,18 +1,17 @@
 {
   "mcpServers": {
-        "time": {
-            "command": "uvx",
-            "args": ["mcp-server-time", "--local-timezone=America/New_York"]
-        },
-
-        "opensearch": {
-            "type": "http",
-            "url": "${OPENSEARCH_MCP_URL}",
-            "headers": {
-                "X-API-Key": "${OPENSEARCH_MCP_API_KEY}",
-                "Content-Type": "application/json",
-                "Accept": "application/json, text/event-stream"
-            }
-        }
+    "time": {
+      "command": "uvx",
+      "args": ["mcp-server-time", "--local-timezone=America/New_York"]
+    },
+    "opensearch": {
+      "type": "streamable-http",
+      "url": "${OPENSEARCH_MCP_URL}",
+      "headers": {
+        "X-API-Key": "${OPENSEARCH_MCP_API_KEY}",
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/event-stream"
+      }
     }
+  }
 }

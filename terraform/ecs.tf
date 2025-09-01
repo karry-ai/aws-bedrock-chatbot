@@ -85,8 +85,27 @@ resource "aws_lb_target_group" "alb_target_group" {
   }
 }
 
+# Target group for MCPO service
+resource "aws_lb_target_group" "mcpo_target_group" {
+  name        = "mcpo-target-group"
+  port        = 8000
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.default.id
+  target_type = "ip"
+
+           health_check {
+           path                = "/openapi.json"
+           interval            = 300
+           timeout             = 30
+           healthy_threshold   = 2
+           unhealthy_threshold = 10
+           matcher             = "200-499"
+         }
+}
+
 resource "aws_lb_listener_rule" "alb_listener_rule" {
   listener_arn = aws_lb_listener.alb_listener.arn
+  priority     = 200
 
   action {
     type             = "forward"
@@ -96,6 +115,29 @@ resource "aws_lb_listener_rule" "alb_listener_rule" {
   condition {
     path_pattern {
       values = ["*"]
+    }
+  }
+}
+
+# Listener rule for MCPO service
+resource "aws_lb_listener_rule" "mcpo_listener_rule" {
+  listener_arn = aws_lb_listener.alb_listener.arn
+  priority     = 100  # Lower priority number = higher precedence
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.mcpo_target_group.arn
+  }
+
+  condition {
+    path_pattern {
+      values = [
+        "/openapi.json",
+        "/docs",
+        "/time*",
+        "/opensearch*",
+        "/mcp/*"
+      ]
     }
   }
 }
@@ -210,12 +252,24 @@ resource "aws_ecs_task_definition" "task_definition_openwebui" {
         {
           name  = "OPENAI_API_BASE_URL"
           value = "http://gateway.bedrock.local/api/v1"
+        },
+        {
+          name  = "MCP_SERVER_URL"
+          value = "http://mcpo.bedrock.local"
+        },
+        {
+          name  = "MCP_SERVER_NAME"
+          value = "mcpo"
         }
       ]
       secrets = [
         {
           name      = "OPENAI_API_KEY"
           valueFrom = aws_secretsmanager_secret.bag_api_key_secret.arn
+        },
+        {
+          name      = "MCP_SERVER_API_KEY"
+          valueFrom = aws_secretsmanager_secret.mcpo_api_key_secret.arn
         }
       ]
       logConfiguration = {
@@ -336,8 +390,16 @@ module "ecs_service_module_sg" {
       security_groups = [module.ecs_service_openwebui_sg.id]
       port            = 80
       protocol        = "tcp"
+    },
+    # Allow ALB to reach mcpo on port 8000
+    {
+      security_groups = [module.alb_sg.id]   # ALB security group
+      port            = 8000
+      protocol        = "tcp"
     }
   ]
+
+  
 }
 
 ## Bedrock Access Gateway ECS Service
@@ -414,6 +476,7 @@ resource "aws_ecs_task_definition" "task_definition_mcpo" {
   memory                   = 1024
   cpu                      = 512
   execution_role_arn       = module.task_execution_role.arn
+  task_role_arn            = module.task_execution_role.arn
 
   runtime_platform {
     cpu_architecture        = "ARM64"
@@ -427,8 +490,8 @@ resource "aws_ecs_task_definition" "task_definition_mcpo" {
       essential = true
       portMappings = [
         {
-          containerPort = 80
-          hostPort      = 80
+          containerPort = 8000
+          hostPort      = 8000
           protocol      = "tcp"
         }
       ]
@@ -444,9 +507,17 @@ resource "aws_ecs_task_definition" "task_definition_mcpo" {
         }
       ]
       environment = [
+                  {
+            name  = "OPENSEARCH_MCP_URL"
+            value = var.opensearch_mcp_url
+          },
+                  {
+          name  = "FORCE_UPDATE"
+          value = "v28" // Force update for ALB routing fixes
+        },
         {
-          name  = "OPENSEARCH_MCP_URL"
-          value = var.opensearch_mcp_url
+          name  = "PORT"
+          value = "8000"
         },
 
       ]
@@ -469,20 +540,30 @@ resource "aws_ecs_service" "ecs_service_mcpo" {
   name            = local.ecs.service_name_mcpo
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.task_definition_mcpo.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+  platform_version = "LATEST"
+  enable_execute_command = true
 
-  desired_count        = 1
-  launch_type          = "FARGATE"
-  force_new_deployment = true
+  health_check_grace_period_seconds = 600  // 10 minutes grace period for health checks
 
   network_configuration {
-    subnets          = aws_subnet.module_private_subnets[*].id
+    subnets          = aws_subnet.webui_private_subnets[*].id
     security_groups  = [module.ecs_service_module_sg.id]
-    assign_public_ip = true
+    assign_public_ip = false
   }
 
   service_registries {
     registry_arn = aws_service_discovery_service.sd_discovery_service_mcpo.arn
   }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.mcpo_target_group.arn
+    container_name   = "mcpo"
+    container_port   = 8000
+  }
+
+  depends_on = [aws_lb_listener.alb_listener]
 }
 
 # Service Discovery for Bedrock Access Gateway

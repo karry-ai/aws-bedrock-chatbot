@@ -13,7 +13,7 @@ WORKDIR /app
 COPY config.json config.json
 COPY entrypoint.sh entrypoint.sh
 
-# Install MCPO and uvx
+# Install MCPO and uv
 RUN pip install mcpo uv
 
 # Install envsubst for environment variable substitution
@@ -22,6 +22,9 @@ RUN apt-get update && apt-get install -y gettext-base && apt-get clean && rm -rf
 # Make entrypoint executable
 RUN chmod +x entrypoint.sh
 
-EXPOSE 80
+# Set default port environment variable
+ENV PORT=8000
+
+EXPOSE $PORT
 
 CMD ["./entrypoint.sh"]

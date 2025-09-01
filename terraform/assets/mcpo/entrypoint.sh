@@ -11,5 +11,9 @@ else
   MCPO_AUTH=""
 fi
 
-# Start MCPO with the effective config
-exec uvx mcpo --host 0.0.0.0 --port 80 $MCPO_AUTH --config /app/config.effective.json
+# Set port with default fallback
+PORT=${PORT:-8000}
+
+# Start MCPO with the effective config (supports both local and remote servers)
+# Note: Using non-privileged port to avoid permission issues
+exec mcpo --port $PORT $MCPO_AUTH --config /app/config.effective.json
